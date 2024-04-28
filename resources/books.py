@@ -3,6 +3,7 @@ import traceback
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
 
+from app.gemini import GeminiAPI
 from google_api import GoogleAPI
 from models.books_col import BooksCollection
 from open_lib_api import OpenLibAPI
@@ -20,8 +21,18 @@ books_parser.add_argument('genre', type=str,
                           required=True,
                           help='Genre must be one of Fiction, Children, Biography, Science, Science Fiction, Fantasy, or Other')
 
-class Book(Resource):
-    def get(self, book_id):
+put_parser = books_parser.copy()
+put_parser.add_argument('authors', type=str, required=True, help="Authors cannot be blank!")
+put_parser.add_argument('publisher', type=str, required=True, help="Publisher cannot be blank!")
+put_parser.add_argument('publishedDate', type=str, required=True, help="Published Date cannot be blank!")
+put_parser.add_argument('language', type=list, location='json', required=True, help="Languages cannot be blank!")
+put_parser.add_argument('summary', type=str, required=True, help="Summary cannot be blank!")
+
+
+class Books(Resource):
+    def get(self, book_id=None):
+        if not book_id:
+            return {"message": "Books retrieved successfully.", "books": books_collection.get_all_books()}, 200
         try:
             book = books_collection.find_book(book_id)
             if book:
@@ -35,6 +46,9 @@ class Book(Resource):
 
     def post(self):
             args = dict(books_parser.parse_args())
+            if books_collection.find_book_by_isbn(args['ISBN']):
+                return {"message": "Book already exists."}, 422
+
             # get book data from Google API
             google_api = GoogleAPI()
             open_lib_api = OpenLibAPI()
@@ -53,8 +67,32 @@ class Book(Resource):
             google_data = book_data_google_response[0]
             open_lib_data = open_lib_api_response[0]
             args.update({**google_data, **open_lib_data})
+            google_data = book_data_google_response.get_json()[0]
+            args.update(google_data)
+
+            # add summary of the book
+            try:
+                prompt = f"Summarize the book {args['title']} by {args['authors']} in 5 sentences or less."
+                gemini = GeminiAPI()
+                gemini_response = gemini.get_response(prompt)
+                if not gemini_response:
+                    args["summary"] = "missing"
+                args["summary"] = gemini_response
+            except Exception as e:
+                print(f"Error: {e}")
+                args["summary"] = "missing"
+
             book_data = books_collection.insert_book(args)
             return {"message": "Book created successfully.", "book": book_data}, 201
+
+    def put(self, book_id):
+        args = dict(put_parser.parse_args())
+        if books_collection.find_book(book_id):
+            args['id'] = book_id
+            book_data = books_collection.insert_book(args, update=True)
+            return {"message": "Book updated successfully.", "book": book_data}, 200
+        else:
+            return {"message": "Book not found.", "id": book_id}, 404
 
     def delete(self, book_id):
         try:
@@ -66,7 +104,7 @@ class Book(Resource):
             return {"message": "Internal server error, try later."}, 500
 
 
-api.add_resource(Book, '/book', '/book/<string:book_id>')
+api.add_resource(Books, '/books', '/books/<string:book_id>')
 
 if __name__ == '__main__':
     app.run(debug=True)

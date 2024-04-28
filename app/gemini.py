@@ -34,4 +34,4 @@ class GeminiAPI:
 # Example usage
 if __name__ == "__main__":
     gemini = GeminiAPI()
-    print(gemini.get_response("Give a few sentences about the history of the United States."))
+    print(gemini.get_response("Summarize the book Harry Potter and the Philosopher's Stone by J. K. Rowling in 5 sentences or less."))
