@@ -38,14 +38,11 @@ class Book(Resource):
             google_api = GoogleAPI()
             book_data_google_response = google_api.get_book(args['ISBN'])
 
-            if book_data_google_response.status_code == 200:
-                # Parse response data if status code is 200
-                google_data = book_data_google_response.get_json()[0]
-            else:
-                # Handle possible errors
-                error = book_data_google_response.get_json()
-                return error, book_data_google_response.status_code
+            if not book_data_google_response or book_data_google_response.get_json()[1] != 200:
+                response = book_data_google_response.get_json()
+                return response[0], response[1]
 
+            google_data = book_data_google_response.get_json()[0]
             args.update(google_data)
             book_data = books_collection.insert_book(args)
             return {"message": "Book created successfully.", "book": book_data}, 201

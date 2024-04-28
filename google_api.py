@@ -11,13 +11,16 @@ class GoogleAPI:
 
         try:
             response = requests.get(url)
-            books_data = response.json()["items"][0]["volumeInfo"]
+            print(response.json())
             total_items = response.json()["totalItems"]
+            if total_items == 0:
+                return jsonify({"error": "No books found for the provided ISBN."}, 400)
+
         except Exception as e:
             print(f"Error: {e}")
-            return None
-        if total_items == 0:
             return jsonify({"error": "No books found for the provided ISBN."}, 400)
+
+        books_data = response.json()["items"][0]["volumeInfo"]
 
         book = {
             "authors": " and ".join(books_data["authors"]) if books_data["authors"] else "missing",
