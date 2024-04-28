@@ -2,6 +2,8 @@ import traceback
 
 from flask import Flask
 from flask_restful import Resource, Api, reqparse
+
+from google_api import GoogleAPI
 from models.books_col import BooksCollection
 
 app = Flask(__name__)
@@ -31,7 +33,20 @@ class Book(Resource):
             return {"message": "Internal server error, try later."}, 500
 
     def post(self):
-            args = books_parser.parse_args()
+            args = dict(books_parser.parse_args())
+            # get book data from Google API
+            google_api = GoogleAPI()
+            book_data_google_response = google_api.get_book(args['ISBN'])
+
+            if book_data_google_response.status_code == 200:
+                # Parse response data if status code is 200
+                google_data = book_data_google_response.get_json()[0]
+            else:
+                # Handle possible errors
+                error = book_data_google_response.get_json()
+                return error, book_data_google_response.status_code
+
+            args.update(google_data)
             book_data = books_collection.insert_book(args)
             return {"message": "Book created successfully.", "book": book_data}, 201
 

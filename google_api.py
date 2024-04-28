@@ -8,6 +8,7 @@ class GoogleAPI:
 
     def get_book(self, isbn):
         url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
+
         try:
             response = requests.get(url)
             books_data = response.json()["items"][0]["volumeInfo"]
@@ -16,12 +17,12 @@ class GoogleAPI:
             print(f"Error: {e}")
             return None
         if total_items == 0:
-            return jsonify({"error": "No book found with this ISBN."}, 400)
+            return jsonify({"error": "No books found for the provided ISBN."}, 400)
 
         book = {
-            "authors": books_data["authors"],
-            "publisher": books_data["publisher"],
-            "published_date": ["publishedDate"],
+            "authors": " and ".join(books_data["authors"]) if books_data["authors"] else "missing",
+            "publisher": books_data.get("publisher", "missing"),
+            "publishedDate": books_data.get("publishedDate", "missing"),
         }
 
         return jsonify(book, 200)

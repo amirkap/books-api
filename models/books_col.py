@@ -1,3 +1,5 @@
+from google_api import GoogleAPI
+
 class BooksCollection:
     def __init__(self):
         self.books = {}
@@ -8,11 +10,11 @@ class BooksCollection:
         book_id = str(self.current_id)
         self.books[book_id]= {
             "title": book_data['title'],
-            #"authors": book_data['authors'],
+            "authors": book_data['authors'],
             "ISBN": book_data['ISBN'],
             "genre": book_data['genre'],
-            #"publisher": book_data['publisher'],
-            #"publishedDate": book_data['publishedDate'],
+            "publisher": book_data['publisher'],
+            "publishedDate": book_data['publishedDate'],
             #"language": book_data['language'],
             #"summary": book_data['summary'],
             "id": book_id
