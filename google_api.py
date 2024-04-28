@@ -1,12 +1,10 @@
 import requests
-from flask import jsonify
-
 
 class GoogleAPI:
     def __init__(self, api_key=None):
         self.api_key = api_key
 
-    def get_book(self, isbn):
+    def get_book_language(self, isbn):
         url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
 
         try:
@@ -14,11 +12,11 @@ class GoogleAPI:
             print(response.json())
             total_items = response.json()["totalItems"]
             if total_items == 0:
-                return jsonify({"error": "No books found for the provided ISBN."}, 400)
+                return {"error": "No books found for the provided ISBN."}, 400
 
         except Exception as e:
             print(f"Error: {e}")
-            return jsonify({"error": "No books found for the provided ISBN."}, 400)
+            return {"error": "No books found for the provided ISBN."}, 400
 
         books_data = response.json()["items"][0]["volumeInfo"]
 
@@ -28,4 +26,4 @@ class GoogleAPI:
             "publishedDate": books_data.get("publishedDate", "missing"),
         }
 
-        return jsonify(book, 200)
+        return book, 200

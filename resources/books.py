@@ -5,6 +5,7 @@ from flask_restful import Resource, Api, reqparse
 
 from google_api import GoogleAPI
 from models.books_col import BooksCollection
+from open_lib_api import OpenLibAPI
 
 app = Flask(__name__)
 api = Api(app)
@@ -36,14 +37,22 @@ class Book(Resource):
             args = dict(books_parser.parse_args())
             # get book data from Google API
             google_api = GoogleAPI()
-            book_data_google_response = google_api.get_book(args['ISBN'])
+            open_lib_api = OpenLibAPI()
+            book_data_google_response = google_api.get_book_language(args['ISBN'])
 
-            if not book_data_google_response or book_data_google_response.get_json()[1] != 200:
-                response = book_data_google_response.get_json()
+            if book_data_google_response[1] != 200:
+                response = book_data_google_response
                 return response[0], response[1]
 
-            google_data = book_data_google_response.get_json()[0]
-            args.update(google_data)
+            open_lib_api_response = open_lib_api.get_language(args['ISBN'])
+
+            if open_lib_api_response[1] != 200:
+                response = open_lib_api_response
+                return response[0], response[1]
+
+            google_data = book_data_google_response[0]
+            open_lib_data = open_lib_api_response[0]
+            args.update({**google_data, **open_lib_data})
             book_data = books_collection.insert_book(args)
             return {"message": "Book created successfully.", "book": book_data}, 201
 
