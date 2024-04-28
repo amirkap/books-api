@@ -67,8 +67,6 @@ class Books(Resource):
             google_data = book_data_google_response[0]
             open_lib_data = open_lib_api_response[0]
             args.update({**google_data, **open_lib_data})
-            google_data = book_data_google_response.get_json()[0]
-            args.update(google_data)
 
             # add summary of the book
             try:
