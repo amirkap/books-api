@@ -11,7 +11,7 @@ class GoogleAPI:
             response = requests.get(url)
             total_items = response.json()["totalItems"]
             if total_items == 0:
-                return {"error": "No books found for the provided ISBN."}, 400
+                return {"error": "No books found for the provided ISBN."}, 422
 
         except Exception as e:
             print(f"Error: {e}")
