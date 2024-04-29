@@ -4,12 +4,11 @@ class GoogleAPI:
     def __init__(self, api_key=None):
         self.api_key = api_key
 
-    def get_book_language(self, isbn):
+    def get_book_details(self, isbn):
         url = f"https://www.googleapis.com/books/v1/volumes?q=isbn:{isbn}"
 
         try:
             response = requests.get(url)
-            print(response.json())
             total_items = response.json()["totalItems"]
             if total_items == 0:
                 return {"error": "No books found for the provided ISBN."}, 400
