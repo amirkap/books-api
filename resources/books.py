@@ -27,7 +27,16 @@ put_parser.add_argument('summary', type=str, required=True, help="Summary cannot
 class Books(Resource):
     def get(self, book_id=None):
         if not book_id:
-            return {"message": "Books retrieved successfully.", "books": BooksCollection.get_all_books()}, 200
+            # Check if there are query parameters for filtering
+            if request.args:
+                # Create a filter dictionary from query parameters
+                filters = {key: request.args[key] for key in request.args}
+                filtered_books = BooksCollection.filter_books_by_criteria(filters)
+                return {"message": "Filtered books retrieved successfully.", "books": filtered_books}, 200
+            else:
+                # No query parameters, return all books
+                return {"message": "Books retrieved successfully.", "books": BooksCollection.get_all_books()}, 200
+
         try:
             book = BooksCollection.find_book(book_id)
             if book:

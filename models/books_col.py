@@ -49,3 +49,23 @@ class BooksCollection:
     def get_all_books():
         """Return all books."""
         return list(BooksCollection.books.values())
+
+    @staticmethod
+    def filter_books_by_criteria(criteria):
+        """Filter books by criteria."""
+        filtered_books = []
+        for book in BooksCollection.books.values():
+            match = True
+            for key, value in criteria.items():
+                if key == 'language':
+                    if value not in book.get(key, []):
+                        match = False
+                        break
+                else:
+                    if book.get(key) != value:
+                        match = False
+                        break
+            if match:
+                filtered_books.append(book)
+
+        return filtered_books
