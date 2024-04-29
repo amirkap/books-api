@@ -8,7 +8,7 @@ class OpenLibAPI:
             response = requests.get(url)
         except Exception as e:
             print(f"Error: {e}")
-            return {"error": "Failed to fetch data from OpenLibrary API."}, 400
+            return {"error": "Unable to connect to OpenLibrary API."}, 500
 
         data = response.json()
         try:

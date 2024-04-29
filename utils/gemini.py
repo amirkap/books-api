@@ -30,8 +30,3 @@ class GeminiAPI:
             print(f"Error: {e}")
             return None
         return response.text
-
-# Example usage
-if __name__ == "__main__":
-    gemini = GeminiAPI()
-    print(gemini.get_response("Summarize the book Harry Potter and the Philosopher's Stone by J. K. Rowling in 5 sentences or less."))

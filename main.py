@@ -2,9 +2,11 @@ from flask import Flask
 from flask_restful import Api
 from resources.books import Books
 from resources.ratings import Ratings, RatingValues, RatingsTop
+from flask_cors import CORS
 
 # Create a Flask app
 app = Flask(__name__)
+CORS(app)
 
 # Create a Flask-RESTful API
 api = Api(app)
@@ -17,4 +19,4 @@ api.add_resource(RatingsTop, '/top')
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(port=8000, debug=True)

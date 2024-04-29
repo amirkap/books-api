@@ -1,9 +1,12 @@
 import traceback
+from flask import request
 from flask_restful import Resource, reqparse
 from models.ratings_col import RatingsCollection
 
 class Ratings(Resource):
     def get(self, book_id=None):
+        book_id = book_id or request.args.get('id')
+
         if not book_id:
             return {"message": "Ratings retrieved successfully.", "ratings": RatingsCollection.get_all_ratings()}, 200
         try:
@@ -26,14 +29,13 @@ class RatingValues(Resource):
         args = parser.parse_args()
         new_average = RatingsCollection.add_value_to_rating(book_id, args['value'])
         if new_average is None:
-            return {"message": "Rating not found.", "id": book_id}, 404
+            return {"message": "Book id not found.", "id": book_id}, 404
 
         return {'message': "New rating value added successfully", 'id': book_id, 'average_rating': new_average}, 201
 
 class RatingsTop(Resource):
     def get(self):
         top_ratings = RatingsCollection.get_top_ratings()
-        print(top_ratings)
         return {
             "message": "Top ratings retrieved successfully.",
             "top": [{

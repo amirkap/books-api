@@ -15,7 +15,7 @@ class GoogleAPI:
 
         except Exception as e:
             print(f"Error: {e}")
-            return {"error": "No books found for the provided ISBN."}, 400
+            return {"error": "Unable to connect to Google Api."}, 500
 
         books_data = response.json()["items"][0]["volumeInfo"]
 
