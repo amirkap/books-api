@@ -34,5 +34,5 @@ class GeminiAPI:
             response_text = response.text
         except Exception as e:
             print(f"Error: {e}")
-            return ["missing"]
+            return "missing"
         return response_text
