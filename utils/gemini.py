@@ -29,4 +29,10 @@ class GeminiAPI:
         except Exception as e:
             print(f"Error: {e}")
             return None
-        return response.text
+
+        try:
+            response_text = response.text
+        except Exception as e:
+            print(f"Error: {e}")
+            return ["missing"]
+        return response_text
