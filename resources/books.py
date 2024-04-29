@@ -1,5 +1,5 @@
 import traceback
-from flask import Flask, request
+from flask import request
 from flask_restful import Resource, reqparse, abort
 from utils.gemini import GeminiAPI
 from utils.google_api import GoogleAPI
