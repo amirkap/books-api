@@ -65,3 +65,5 @@ class RatingsCollection:
 
         # Collect all books that have the top 3 scores
         top_ratings = [rating for rating in sorted_ratings if rating['average'] in top_scores]
+
+        return top_ratings
