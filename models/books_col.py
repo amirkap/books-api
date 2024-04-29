@@ -53,6 +53,9 @@ class BooksCollection:
     @staticmethod
     def filter_books_by_criteria(criteria):
         """Filter books by criteria."""
+        if "summary" in criteria:
+            del criteria["summary"]
+
         filtered_books = []
         for book in BooksCollection.books.values():
             match = True
