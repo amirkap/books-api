@@ -3,7 +3,7 @@ import requests
 
 class OpenLibAPI:
     def get_language(self, isbn):
-        url = f"https://openlibrary.org/search.json?q={isbn}&fields=key,title,author_name,language"
+        url = f"https://openlibrary.org/search.json?q={isbn}&fields=language"
         try:
             response = requests.get(url)
         except Exception as e:
@@ -20,4 +20,4 @@ class OpenLibAPI:
             language = data['docs'][0]['language']
             return {"language": language}, 200
         except (IndexError, KeyError) as e:
-            raise Exception(f"Data parsing error: {e}")
+            return {"error": f"Data parsing error: {e}"}, 500
