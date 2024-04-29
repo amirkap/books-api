@@ -1,6 +1,6 @@
 import traceback
 from flask import request
-from flask_restful import Resource, reqparse
+from flask_restful import Resource, reqparse, abort
 from models.ratings_col import RatingsCollection
 
 class Ratings(Resource):
@@ -23,10 +23,16 @@ class Ratings(Resource):
 
 class RatingValues(Resource):
     def post(self, book_id):
-        parser = reqparse.RequestParser()
+        parser = reqparse.RequestParser(bundle_errors=True)
         parser.add_argument('value', type=int, required=True, choices=[1, 2, 3, 4, 5],
                             help="Value must be an integer and between 1 to 5!")
-        args = parser.parse_args()
+        try:
+            args = parser.parse_args()
+        except Exception as e:
+            error_messages = e.data if hasattr(e, 'data') else str(e)
+            error_messages = error_messages.get('message') if isinstance(error_messages, dict) else error_messages
+            abort(422, message=error_messages)
+
         new_average = RatingsCollection.add_value_to_rating(book_id, args['value'])
         if new_average is None:
             return {"message": "Book id not found.", "id": book_id}, 404

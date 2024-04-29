@@ -14,7 +14,7 @@ class OpenLibAPI:
         try:
             language = []
             if not data['docs']:
-                return {"error": "No books found for the provided ISBN."}, 400
+                return {"error": "No books found for the provided ISBN."}, 422
             if 'language' not in data['docs'][0]:
                 language = ["missing"]
             else:
