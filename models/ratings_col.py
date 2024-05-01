@@ -41,6 +41,14 @@ class RatingsCollection:
         return False
 
     @staticmethod
+    def update_book_title(book_id, new_title):
+        """Update a rating by book ID."""
+        if book_id in RatingsCollection.ratings:
+            RatingsCollection.ratings[book_id]["title"] = new_title
+            return True
+        return False
+
+    @staticmethod
     def get_top_ratings():
         """Return top ratings."""
         # Retrieve all ratings from the collection
