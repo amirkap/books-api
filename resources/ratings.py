@@ -23,6 +23,10 @@ class Ratings(Resource):
 
 class RatingValues(Resource):
     def post(self, book_id):
+        # Check for correct content type
+        if not request.is_json:
+            abort(415, message="Unsupported media type: Expected application/json")
+
         parser = reqparse.RequestParser(bundle_errors=True)
         parser.add_argument('value', type=int, required=True, choices=[1, 2, 3, 4, 5],
                             help="Value must be an integer and between 1 to 5!")
