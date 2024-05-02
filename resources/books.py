@@ -16,15 +16,15 @@ class Books(Resource):
                 # Create a filter dictionary from query parameters
                 filters = {key: request.args[key] for key in request.args}
                 filtered_books = BooksCollection.filter_books_by_criteria(filters)
-                return {"message": "Filtered books retrieved successfully.", "books": filtered_books}, 200
+                return filtered_books, 200
             else:
                 # No query parameters, return all books
-                return {"message": "Books retrieved successfully.", "books": BooksCollection.get_all_books()}, 200
+                return BooksCollection.get_all_books(), 200
 
         try:
             book = BooksCollection.find_book(book_id)
             if book:
-                return {"message": "Book retrieved successfully.", "book": book}, 200
+                return book, 200
             else:
                 return {"message": "Book not found.", "id": book_id}, 404
         except Exception as e:
@@ -81,7 +81,7 @@ class Books(Resource):
 
         book_id = BooksCollection.insert_book(args)
         rating = RatingsCollection.insert_rating(book_id, args['title'])
-        return {"message": "Book created successfully.", "book": book_id}, 201
+        return {"id": book_id}, 201
 
     def put(self, book_id):
         # Check for correct content type
@@ -100,7 +100,7 @@ class Books(Resource):
             args['id'] = book_id
             book_data = BooksCollection.insert_book(args, update=True)
             rating = RatingsCollection.update_book_title(book_id, args['title'])
-            return {"message": "Book updated successfully.", "book": book_data}, 200
+            return {"id": book_id}, 200
         else:
             return {"message": "Book not found.", "id": book_id}, 404
 
@@ -108,7 +108,7 @@ class Books(Resource):
         try:
             if BooksCollection.delete_book(book_id):
                 RatingsCollection.delete_rating(book_id)
-                return {"message": "Book deleted successfully.", "id": book_id}, 200
+                return {"id": book_id}, 200
             else:
                 return {"message": "Book not found.", "id": book_id}, 404
         except Exception as e:

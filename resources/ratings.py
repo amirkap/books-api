@@ -8,11 +8,11 @@ class Ratings(Resource):
         book_id = book_id or request.args.get('id')
 
         if not book_id:
-            return {"message": "Ratings retrieved successfully.", "ratings": RatingsCollection.get_all_ratings()}, 200
+            return RatingsCollection.get_all_ratings(), 200
         try:
             rating = RatingsCollection.find_rating(book_id)
             if rating:
-                return {"message": "Rating retrieved successfully.", "rating": rating}, 200
+                return rating, 200
             else:
                 return {"message": "Rating not found.", "id": book_id}, 404
         except Exception as e:
@@ -37,16 +37,13 @@ class RatingValues(Resource):
         if new_average is None:
             return {"message": "Book id not found.", "id": book_id}, 404
 
-        return {'message': "New rating value added successfully", 'id': book_id, 'average_rating': new_average}, 201
+        return {'average_rating': new_average}, 201
 
 class RatingsTop(Resource):
     def get(self):
         top_ratings = RatingsCollection.get_top_ratings()
-        return {
-            "message": "Top ratings retrieved successfully.",
-            "top": [{
+        return [{
                 'id': rating['id'],
                 'title': rating['title'],
                 'average': rating['average']
-            } for rating in top_ratings]
-        }, 200
+            } for rating in top_ratings], 200
