@@ -1,0 +1,53 @@
+version: '3.8'
+
+services:
+  nginx:
+    build: ./nginx
+    ports:
+      - "80:80"
+    depends_on:
+      - books
+      - loan1
+      - loan2
+    restart: always
+
+  books:
+    build: ./books
+    ports:
+      - "5001:5001"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/booksdb
+    depends_on:
+      - mongo
+    restart: always
+
+  loans1:
+    build: ./loans
+    ports:
+      - "5002:5002"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/loansdb
+    depends_on:
+      - mongo
+    restart: always
+
+  loans2:
+    build: ./loans
+    ports:
+      - "5003:5002"
+    environment:
+      - MONGO_URL=mongodb://mongo:27017/loansdb
+    depends_on:
+      - mongo
+    restart: always
+
+  mongo:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-data:/data/db
+    restart: always
+
+volumes:
+  mongo-data:
