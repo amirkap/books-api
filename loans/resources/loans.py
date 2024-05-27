@@ -1,3 +1,4 @@
+import os
 import traceback
 import requests
 from flask import request, jsonify
@@ -8,6 +9,8 @@ from ..models.loans_col import LoansCollection
 class Loans(Resource):
     def __init__(self):
         self.loans_collection = LoansCollection(request.environ['MONGO_URL'])
+        self.books_service_url = os.getenv('BOOKS_SERVICE_URL')
+
 
     def get(self, loan_id=None):
         if not loan_id:
@@ -40,7 +43,7 @@ class Loans(Resource):
         args = parser.parse_args()
 
         # Retrieve book details from the books service
-        book_response = requests.get(f'http://books:5001/books?ISBN={args["ISBN"]}')
+        book_response = requests.get(f'{self.books_service_url}/books?ISBN={args["ISBN"]}')
         if book_response.status_code != 200:
             return {"message": "Book not found in books service.", "ISBN": args["ISBN"]}, 422
 
@@ -48,7 +51,7 @@ class Loans(Resource):
 
         # Check if any of the books with the given ISBN is available
         on_loan_books = self.loans_collection.find_loans_by_isbn(args["ISBN"])
-        available_books = [book for book in books_data if book['_id'] not in [loan['bookID'] for loan in on_loan_books]]
+        available_books = [book for book in books_data if book['id'] not in [loan['bookID'] for loan in on_loan_books]]
 
         if not available_books:
             return {"message": "All copies of this book are currently on loan.", "ISBN": args["ISBN"]}, 422
@@ -65,7 +68,7 @@ class Loans(Resource):
             "ISBN": args["ISBN"],
             "loanDate": args["loanDate"],
             "title": book_data["title"],
-            "bookID": book_data["_id"]
+            "bookID": book_data["id"]
         }
 
         # Insert loan data into the database and let MongoDB generate the _id

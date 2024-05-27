@@ -77,7 +77,7 @@ class Books(Resource):
             abort(422, message=error_messages)
 
         if self.books_collection.find_book(book_id):
-            args['_id'] = book_id
+            args['id'] = book_id
             self.books_collection.insert_book(args, update=True)
             self.ratings_collection.update_book_title(book_id, args['title'])
             return {"id": book_id}, 200

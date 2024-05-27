@@ -10,12 +10,13 @@ class BooksCollection:
 
     def insert_book(self, book_data, update=False):
         if update:
-            book_id = book_data['_id']
+            book_id = book_data['id']
             self.books.update_one({"_id": ObjectId(book_id)}, {"$set": book_data})
-            return book_id
         else:
             result = self.books.insert_one(book_data)
-            return str(result.inserted_id)
+            book_id = str(result.inserted_id)
+            self.books.update_one({"_id": result.inserted_id}, {"$set": {"id": book_id}})  # We want regular ID too
+        return book_id
 
     def delete_book(self, book_id):
         result = self.books.delete_one({"_id": ObjectId(book_id)})

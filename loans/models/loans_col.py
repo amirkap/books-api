@@ -10,7 +10,9 @@ class LoansCollection:
 
     def insert_loan(self, loan_data):
         result = self.loans.insert_one(loan_data)
-        return str(result.inserted_id)
+        loan_id = result.inserted_id
+        self.loans.update_one({"_id": loan_id}, {"$set": {"loanID": str(loan_id)}})
+        return str(loan_id)
 
     def delete_loan(self, loan_id):
         result = self.loans.delete_one({"_id": ObjectId(loan_id)})
