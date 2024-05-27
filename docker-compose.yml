@@ -7,8 +7,8 @@ services:
       - "80:80"
     depends_on:
       - books
-      - loan1
-      - loan2
+      - loans1
+      - loans2
     restart: always
 
   books:
