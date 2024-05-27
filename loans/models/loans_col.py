@@ -5,7 +5,7 @@ from bson.objectid import ObjectId
 class LoansCollection:
     def __init__(self, mongo_url):
         self.client = MongoClient(mongo_url)
-        self.db = self.client.loapipnsdb  # This sets the database name
+        self.db = self.client.loansdb  # This sets the database name
         self.loans = self.db.loans  # This sets the collection name
 
     def insert_loan(self, loan_data):

@@ -1,29 +1,35 @@
+import os
 import traceback
+import json
 from flask import request
-from flask_restful import Resource, reqparse, abort
-from ..utils.google_api import GoogleAPI
-from ..models.books_col import BooksCollection
-from ..models.ratings_col import RatingsCollection
-from ..utils.validation_utils import get_put_parser, get_post_parser
+from flask_restful import Resource, abort
+from bson import json_util
+from utils.google_api import GoogleAPI
+from models.books_col import BooksCollection
+from models.ratings_col import RatingsCollection
+from utils.validation_utils import get_put_parser, get_post_parser
 
 class Books(Resource):
     def __init__(self):
-        self.books_collection = BooksCollection(request.environ['MONGO_URL'])
-        self.ratings_collection = RatingsCollection(request.environ['MONGO_URL'])
+        self.books_collection = BooksCollection(os.environ['MONGO_URL'])
+        self.ratings_collection = RatingsCollection(os.environ['MONGO_URL'])
 
     def get(self, book_id=None):
         if not book_id:
             if request.args:
                 filters = {key: request.args[key] for key in request.args}
                 filtered_books = self.books_collection.filter_books_by_criteria(filters)
-                return filtered_books, 200
+                json_books = json.loads(json_util.dumps(filtered_books))
+                return json_books, 200
             else:
-                return self.books_collection.get_all_books(), 200
+                json_books = json.loads(json_util.dumps(self.books_collection.get_all_books()))
+                return json_books, 200
 
         try:
             book = self.books_collection.find_book(book_id)
             if book:
-                return book, 200
+                json_book = json.loads(json_util.dumps(book))
+                return json_book, 200
             else:
                 return {"message": "Book not found.", "id": book_id}, 404
         except Exception as e:
@@ -43,12 +49,8 @@ class Books(Resource):
             error_messages = error_messages.get('message') if isinstance(error_messages, dict) else error_messages
             abort(422, message=error_messages)
 
-
-        # Not sure if we should allow multiple replicas of the same book or not.
-        # For now, we allow that.
-
-        # if self.books_collection.find_book_by_isbn(args['ISBN']):
-        #     abort(422, message="Book with the same ISBN already exists.")
+        if self.books_collection.find_book_by_isbn(args['ISBN']):
+            abort(422, message="Book with the same ISBN already exists.")
 
         google_api = GoogleAPI()
         book_data_google_response = google_api.get_book_details(args['ISBN'])

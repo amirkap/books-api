@@ -13,6 +13,9 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy the rest of the application code into the container
 COPY . .
 
+# Set the PYTHONPATH environment variable
+ENV PYTHONPATH="/usr/src/app"
+
 # Make port 5001 available to the world outside this container
 EXPOSE 5001
 

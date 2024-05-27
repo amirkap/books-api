@@ -1,20 +1,25 @@
+import os
 import traceback
+import json
 from flask import request
 from flask_restful import Resource, reqparse, abort
-from ..models.ratings_col import RatingsCollection
+from bson import json_util
+from models.ratings_col import RatingsCollection
 
 class Ratings(Resource):
     def __init__(self):
-        self.ratings_collection = RatingsCollection(request.environ['MONGO_URL'])
+        self.ratings_collection = RatingsCollection(os.environ['MONGO_URL'])
 
     def get(self, book_id=None):
         book_id = book_id or request.args.get('id')
         if not book_id:
-            return self.ratings_collection.get_all_ratings(), 200
+            json_ratings = json.loads(json_util.dumps(self.ratings_collection.get_all_ratings()))
+            return json_ratings, 200
         try:
             rating = self.ratings_collection.find_rating(book_id)
             if rating:
-                return rating, 200
+                json_rating = json.loads(json_util.dumps(rating))
+                return json_rating, 200
             else:
                 return {"message": "Rating not found.", "id": book_id}, 404
         except Exception as e:
