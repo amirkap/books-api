@@ -29,7 +29,10 @@ class RatingsCollection:
         return self.ratings.find_one({"book_id": book_id})
 
     def get_all_ratings(self):
-        return list(self.ratings.find())
+        ratings = self.ratings.find()
+        for rating in ratings:
+            rating.pop("_id", None)
+        return ratings
 
     def delete_rating(self, book_id):
         result = self.ratings.delete_one({"book_id": book_id})

@@ -19,13 +19,25 @@ class LoansCollection:
         return result.deleted_count > 0
 
     def find_loan(self, loan_id):
-        return self.loans.find_one({"_id": ObjectId(loan_id)})
+        loan = self.loans.find_one({"_id": ObjectId(loan_id)})
+        if loan:
+            loan.pop("_id", None)
+        return loan
 
     def find_loans_by_member(self, member_name):
-        return list(self.loans.find({"memberName": member_name}))
+        loans = list(self.loans.find({"memberName": member_name}))
+        for loan in loans:
+            loan.pop("_id", None)
+        return loans
 
     def find_loans_by_isbn(self, isbn):
-        return list(self.loans.find({"ISBN": isbn}))
+        loans = list(self.loans.find({"ISBN": isbn}))
+        for loan in loans:
+            loan.pop("_id", None)
+        return loans
 
     def get_all_loans(self):
-        return list(self.loans.find())
+        loans = list(self.loans.find())
+        for loan in loans:
+            loan.pop("_id", None)
+        return loans

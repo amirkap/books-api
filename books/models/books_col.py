@@ -23,15 +23,27 @@ class BooksCollection:
         return result.deleted_count > 0
 
     def find_book(self, book_id):
-        return self.books.find_one({"_id": ObjectId(book_id)})
+        book = self.books.find_one({"_id": ObjectId(book_id)})
+        if book:
+            book.pop("_id", None)
+        return book
 
     def find_book_by_isbn(self, isbn):
-        return self.books.find_one({"ISBN": isbn})
+        book = self.books.find_one({"ISBN": isbn})
+        if book:
+            book.pop("_id", None)
+        return book
 
     def get_all_books(self):
-        return list(self.books.find())
+        books = list(self.books.find())
+        for book in books:
+            book.pop("_id", None)
+        return books
 
     def filter_books_by_criteria(self, criteria):
         if "summary" in criteria:
             del criteria["summary"]
-        return list(self.books.find(criteria))
+        books = list(self.books.find(criteria))
+        for book in books:
+            book.pop("_id", None)
+        return books

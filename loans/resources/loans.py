@@ -2,6 +2,8 @@ import os
 import traceback
 import requests
 import json
+
+from bson.errors import InvalidId
 from flask import request
 from flask_restful import Resource, reqparse, abort
 from bson import json_util
@@ -32,6 +34,8 @@ class Loans(Resource):
                 return json_loan, 200
             else:
                 return {"message": "Loan not found.", "loanID": loan_id}, 404
+        except InvalidId as e:
+            return {"message": "Loan not found.", "loanID": loan_id}, 404
         except Exception as e:
             print("An error occurred:", e)
             traceback.print_exc()
@@ -45,7 +49,13 @@ class Loans(Resource):
         parser.add_argument('memberName', type=str, required=True, help="Member name is required")
         parser.add_argument('ISBN', type=str, required=True, help="ISBN is required")
         parser.add_argument('loanDate', type=str, required=True, help="Loan date is required")
-        args = parser.parse_args()
+
+        try:
+            args = parser.parse_args()
+        except Exception as e:
+            error_messages = e.data if hasattr(e, 'data') else str(e)
+            error_messages = error_messages.get('message') if isinstance(error_messages, dict) else error_messages
+            abort(422, message=error_messages)
 
         # Retrieve book details from the books service
         book_response = requests.get(f'{self.books_service_url}/books?ISBN={args["ISBN"]}')
@@ -87,5 +97,9 @@ class Loans(Resource):
                 return {"loanID": loan_id}, 200
             else:
                 return {"message": "Loan not found.", "loanID": loan_id}, 404
+        except InvalidId as e:
+            return {"message": "Loan not found.", "loanID": loan_id}, 404
         except Exception as e:
+            print("An error occurred:", e)
+            traceback.print_exc()
             return {"message": "Internal server error, try later."}, 500
