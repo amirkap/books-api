@@ -2,7 +2,6 @@ import os
 import traceback
 import requests
 import json
-
 from bson.errors import InvalidId
 from flask import request
 from flask_restful import Resource, reqparse, abort

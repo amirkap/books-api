@@ -4,6 +4,7 @@ import json
 from flask import request
 from flask_restful import Resource, abort
 from bson import json_util
+from bson.errors import InvalidId
 from utils.google_api import GoogleAPI
 from models.books_col import BooksCollection
 from models.ratings_col import RatingsCollection
@@ -32,6 +33,8 @@ class Books(Resource):
                 return json_book, 200
             else:
                 return {"message": "Book not found.", "id": book_id}, 404
+        except InvalidId as e:
+            return {"message": "Book not found.", "id": book_id}, 404
         except Exception as e:
             print("An error occurred:", e)
             traceback.print_exc()
