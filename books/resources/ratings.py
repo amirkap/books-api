@@ -33,7 +33,7 @@ class Ratings(Resource):
 
 class RatingValues(Resource):
     def __init__(self):
-        self.ratings_collection = RatingsCollection(request.environ['MONGO_URL'])
+        self.ratings_collection = RatingsCollection(os.environ['MONGO_URL'])
 
     def post(self, book_id):
         # Check for correct content type
@@ -58,7 +58,7 @@ class RatingValues(Resource):
 
 class RatingsTop(Resource):
     def __init__(self):
-        self.ratings_collection = RatingsCollection(request.environ['MONGO_URL'])
+        self.ratings_collection = RatingsCollection(os.environ['MONGO_URL'])
 
     def get(self):
         top_ratings = self.ratings_collection.get_top_ratings()

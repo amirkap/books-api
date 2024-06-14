@@ -9,7 +9,6 @@ services:
       - books
       - loans1
       - loans2
-    restart: always
 
   books:
     build: ./books
@@ -47,9 +46,3 @@ services:
     image: mongo:latest
     ports:
       - "27017:27017"
-    volumes:
-      - mongo-data:/data/db
-    restart: always
-
-volumes:
-  mongo-data:
