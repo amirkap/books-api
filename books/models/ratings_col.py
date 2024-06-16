@@ -1,3 +1,4 @@
+from bson import ObjectId
 from pymongo import MongoClient
 
 class RatingsCollection:
@@ -26,10 +27,13 @@ class RatingsCollection:
         return None
 
     def find_rating(self, book_id):
-        return self.ratings.find_one({"book_id": book_id})
+        rating = self.ratings.find_one({"book_id": book_id})
+        if rating:
+            rating.pop("_id", None)
+        return rating
 
     def get_all_ratings(self):
-        ratings = self.ratings.find()
+        ratings = list(self.ratings.find())
         for rating in ratings:
             rating.pop("_id", None)
         return ratings
